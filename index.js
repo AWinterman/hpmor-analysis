@@ -1,14 +1,25 @@
 var jsdom = require("jsdom")
 var util = require('util')
 var childprocess = require('child_process')
+var mkdirp = require('mkdirp')
+var path = require('path')
+var fs = require('fs')
 
 var txt = []
 var url = "http://hpmor.com/chapter/%s"
+var base = './data/chapter/'
 var counter = 0
 
-for(var i = 0, len = 113; i < len; ++i) {
-  jsdom.env(util.format(url, i + 1), ready.bind(i))
-}
+mkdirp(base, function(err) {
+  if(err) {
+    console.log(err)
+    return
+  }
+
+  for(var i = 0, len = 113; i < len; ++i) {
+    jsdom.env(util.format(url, i + 1), ready.bind(i))
+  }
+})
 
 function ready(errors, window) {
   var index = this
@@ -59,5 +70,6 @@ function ready(errors, window) {
   })
 
   child.stdin.end(item.title + item.body)
+  fs.createWriteStream(path.join(base, '' + (index + 1)) + '.html').end(item.title + item.body)
 }
 
